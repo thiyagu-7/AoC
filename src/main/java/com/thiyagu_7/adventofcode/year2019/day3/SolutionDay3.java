@@ -15,7 +15,7 @@ public class SolutionDay3 {
     private static final Map<Character, BiFunction<Coordinate, Integer, Coordinate>> COORDINATE_DIRECTION;
 
     //Current location
-    private Coordinate centralPort = new Coordinate(17500, 19500);
+    private Coordinate centralPort = new Coordinate(0, 0);
     private Coordinate current = centralPort;
     private int result = Integer.MAX_VALUE;
 

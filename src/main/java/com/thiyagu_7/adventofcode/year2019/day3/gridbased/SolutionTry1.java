@@ -1,4 +1,4 @@
-package com.thiyagu_7.adventofcode.year2019.day3;
+package com.thiyagu_7.adventofcode.year2019.day3.gridbased;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
