@@ -1,6 +1,5 @@
 package com.thiyagu_7.adventofcode.year2019.day3;
 
-import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,6 +109,24 @@ public class SolutionDay3 {
 
         public int getY() {
             return y;
+        }
+    }
+
+    static class Pair<L, R> {
+        private L left;
+        private R right;
+
+        Pair(L left, R right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        public L getKey() {
+            return left;
+        }
+
+        public R getValue() {
+            return right;
         }
     }
 }
