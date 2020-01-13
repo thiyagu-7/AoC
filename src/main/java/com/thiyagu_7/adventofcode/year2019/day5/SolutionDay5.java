@@ -3,6 +3,7 @@ package com.thiyagu_7.adventofcode.year2019.day5;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.IntSupplier;
 
 /**
  * https://adventofcode.com/2019/day/5
@@ -78,6 +79,10 @@ public class SolutionDay5 {
     }
 
     public List<Integer> part2(int[] inputs, int valueToRead) {
+        return part2(inputs, () -> valueToRead);
+    }
+
+    public List<Integer> part2(int[] inputs, IntSupplier valueSupplier) {
         List<Integer> resultOutputs = new ArrayList<>();
         int index = 0;
 
@@ -109,15 +114,15 @@ public class SolutionDay5 {
                     break;
                 case 3:
                     //Input
-                    System.out.println("READING");
+                    //System.out.println("READING");
                     targetIndex = inputs[index + 1];
-                    inputs[targetIndex] = valueToRead;
+                    inputs[targetIndex] = valueSupplier.getAsInt();
                     index += 2;
                     break;
                 case 4:
                     //Output
                     int target = resolve(inputs, inputs[index + 1], parameterModeIndex >= 0 ? digits.get(parameterModeIndex) : 0);
-                    System.out.println(target);
+                    //System.out.println(target);
                     resultOutputs.add(target);
                     index += 2;
                     break;
