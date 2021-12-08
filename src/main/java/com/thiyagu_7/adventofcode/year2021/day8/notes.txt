@@ -1,0 +1,62 @@
+0
+ a b c e f g
+
+1
+ c f
+
+2
+ a c d e g
+
+3
+ a c d f g
+
+4
+ B c d f
+
+5
+ a b d f g
+
+6
+ a b d e f g
+
+7
+ a c f
+8
+ a b c d e f g
+
+9
+ a b c d f g
+----
+0: 6
+1: 2
+2: 5
+3: 5
+4: 4
+5: 5
+6: 6
+7: 3
+8: 7
+9: 6
+
+Len -> digits
+2 -> 1
+3 -> 7
+4 -> 4
+5 -> 2, 3, 5
+6 -> 0, 6, 9
+7 -> 8
+
+
+ab (1)
+dab (7)
+eafb  (4)
+cdfbe gcdfa fbcad
+cefabd cdfgeb cagedb
+acedgfb (8)
+
+
+
+//segments
+//signal wire
+
+//unique number of segments
