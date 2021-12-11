@@ -19,7 +19,7 @@ public class SolutionDay19 {
                 ruleToValidMessages.put(rule.getKey(), validMessages);
             }
         }
-        System.out.println(ruleToValidMessages);
+
         Set<String> rule0ValidMessages = ruleToValidMessages.get("0");
 
         return messages.stream()
