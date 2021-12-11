@@ -1,6 +1,6 @@
 package com.thiyagu_7.adventofcode.year2021.day5;
 
-import javafx.util.Pair;
+import com.thiyagu_7.adventofcode.util.Pair;
 
 import java.util.Arrays;
 import java.util.List;
