@@ -1,0 +1,83 @@
+HEX -> binary
+
+Single packet
+ Hex - 0s at end (ignore)
+
+Every packet:
+ Standard header (number as binary) 100 -> 4
+  3 bits - packet version
+  3 bits - packet type id
+
+1. Type id 4 - literal value packet
+ Has single binary number
+ Padded with leading 0 (to make length multiple of 4)
+ Broken into group of 4 bits
+  Each group prefixed by a 1 bit except last (it is prefixed by a 0)
+
+ Packet header -> groups of 5 bits
+
+110 100 10111 11110 00101000
+VVV TTT AAAAA BBBBB CCCCC
+
+6   4   0111  1110  0101
+* only last is prefixed by a 0
+
+So, this packet represents a literal value with binary representation 011111100101, which is 2021 in decimal.
+
+
+
+
+2. Other type id - operator packet - performs some calculation on one or more sub-packets contained within.
+
+ parsing the hierarchy of sub-packets
+ bit immediately after packet "header" represents one of two modes (length type ID)
+  * 0 - next 15 bits are a number that represents the 'total length in bits' of the sub-packets contained by this packet.
+  * 1 - next 11 bits are a number that represents the 'number of sub-packets' immediately contained by this packet.
+
+After the length type ID bit and the 15-bit or 11-bit field, the sub-packets appear.
+
+001 110 0   000000000011011 1101000101001010010001001000000000
+VVV TTT I   LLLLLLLLLLLLLLL AAAAAAAAAAABBBBBBBBBBBBBBBB
+1    6		27
+
+I (0) is the length type ID
+  15-bit number representing the number of bits in the sub-packets.
+
+L - 27 (15 bits)
+A - 10 (11 bits) first sub-packet
+  110 100 01010
+   V 	T   10(A)
+
+B - 20 (16 bits) second sub-packet
+  010 100 10001 00100 0000000
+   V   T
+0001 0100 is 20
+
+
+Example 2:
+111 011 1 00000000011 01010000001 10010000010 0011000001100000
+VVV TTT I LLLLLLLLLLL AAAAAAAAAAA BBBBBBBBBBB CCCCCCCCCCC
+
+
+I (1) is the length type ID
+  11-bit number representing the number of sub-packets
+
+L - 3 (15 bits)
+A - 1 (11 bits) first sub-packet
+  010 100  00001
+   V 	T   1
+
+(Can have multiple blocks as well for big numbers)
+
+B - 2 (11 bits) second sub-packet
+  100 100  00010
+   V 	T   2
+
+
+C - 3 (11 bits) third sub-packet
+  001 100  00011 00000[X]
+   V 	T   3
+0001 0100 is 20
+
+
+* can be nested - operator packet can have operator packet
