@@ -1,0 +1,10 @@
+A pair - an ordered list of two elements. Each element of the pair can be either a regular number or another pair.
+
+To add two snailfish numbers, form a pair from the left and right parameters of the addition operator.
+For example, [1,2] + [[3,4],5] becomes [[1,2],[[3,4],5]].
+
+Reduction:
+* Explode
+* Split
+
+During reduction, at most one action applies, after which the process returns to the top of the list of actions. For example, if split produces a pair that meets the explode criteria, that pair explodes before other splits occur
