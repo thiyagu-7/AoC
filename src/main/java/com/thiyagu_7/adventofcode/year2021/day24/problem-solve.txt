@@ -1,0 +1,372 @@
+https://www.reddit.com/r/adventofcode/comments/rnqui9/comment/hpued9f/
+
+There are two paths. Must  take the path which leads to division and eventually to `z=0`
+
+Starting,
+w = 0
+x = 0
+y = 0
+z = 0
+
+Let digits be 
+A B C D E F G H I J   K   L   M   N
+1 2 3 4 5 6 7 8 9 10  11  12  13  14
+
+Let Zi be the Z value after processing instruction for digit i
+
+Instructions for digit 1 (A)
+x = x + z
+x = x % 26
+x = x + 11
+x = x != A  -> x = 1
+
+y = 25 * x
+y = y + 1  -> y = 26
+
+z = z * y  -> z = 0
+
+y = A + 6
+y = y * x
+
+z = z + y
+
+Result,
+w = A
+x = 1
+y = A + 6
+z = A + 6 
+
+Instructions for digit 2 (B)
+x = x + z
+x = x % 26
+x = x + 11
+x = x != B -> x = 1
+
+y = 25 * x
+y = y + 1  -> y = 26
+
+z = z * y -> z = (A+6)26
+
+y = B + 12
+y = y * x
+
+z = z + y
+
+Result,
+w = B
+x = 1
+y = B + 12
+z = 26(A + 6) + B + 12
+
+Instructions for digit 3 (C)
+x = x + z
+x = x % 26
+x = x + 15
+x = x != C -> x = 1
+
+y = 25 * x
+y = y + 1  -> y = 26
+
+z = z * y -> z = 26[26(A + 6) + B + 12]
+
+y = C + 8
+y = y * x
+
+z = z + y  -> z= 26[26(A + 6) + B + 12] + C + 8
+
+Result,
+w = C
+x = 1
+y = C + 8
+z = 26(Z2) + y
+
+Instructions for digit 4 (D)
+x = x + z
+x = x % 26
+z = z / 26 -> z = Z2
+
+x = x - 11
+x = x != D
+  x = 0 if D = C - 3
+
+y = 25 * x
+y = y + 1
+
+   x = 1 | 0
+   y = 26 | 1
+
+z = z * y
+  z = 26Z2 | Z2
+
+y = D + 7
+y = y * x
+  y = D + 7 | 0
+
+z = z + y
+
+Result,
+w = D
+x = 1 | 0
+y = D + 7 | 0
+z = 26(Z2) + y | Z2
+
+
+Instructions for digit 5 (E)
+x = x + z
+x = x % 26
+x = x + 15
+  x = D + 22 | B + 27
+x = x != E
+  x = 1
+
+y = 25 * x
+y = y + 1  -> y = 26
+
+z = z * y
+
+y = E + 7
+y = y * x
+   z = 26(26Z2 + D + 7) | 26Z2
+
+z = z + y
+
+Result,
+w = E
+y = E + 7
+z = 26Z4 + y | 26Z2 + y
+
+Instructions for digit 6 (F)
+x = x + z
+x = x % 26
+x = x + 15
+  x = E + 22
+x = x != F
+  x = 1
+
+y = 25 * x
+y = y + 1  -> y = 26
+
+z = z * y
+  z = 26(26Z4 + E + 7) | 26(26Z2 + E + 7)
+
+y = F + 12
+y = y * x
+
+z = z + y
+
+Result,
+w = F
+y = F + 12
+z = 26Z5 + y
+
+Instructions for digit 7 (G)
+x = x + z
+x = x % 26
+x = x + 14
+x = x != G
+  x = 1
+
+y = 25 * x
+y = y + 1  -> y = 26
+
+z = z * y
+  z = 26(26Z5 + F + 12)
+
+y = G + 2
+y = y * x
+
+z = z + y
+
+Result,
+w = G
+y = G + 2
+z = 26Z6 + y
+
+Instructions for digit 8 (H)
+x = x + z
+x = x % 26
+z = z / 26
+  z = Z6
+
+x = x - 7
+ x = G - 5
+x = x != G
+  x = 0 if H = G - 5
+
+y = 25 * x
+y = y + 1
+   y = 26 | 1
+
+z = z * y
+  z = 26G6 | Z6
+
+y = H + 15
+y = y * x
+
+z = z + y
+
+Result,
+w = H
+y = H + 15
+z = 26Z6 + y | Z6
+
+Instructions for digit 9 (I)
+x = x + z
+x = x % 26
+x = x + 12
+x = x != I ->  x = 1
+
+y = 25 * x
+y = y + 1  -> y = 26
+
+z = z * y
+  z = 26(26G6 + H + 15) | 26Z6
+
+y = I + 4
+y = y * x
+
+z = z + y
+
+Result,
+w = I
+y = I + 4
+z = 26Z8 + y
+
+Instructions for digit 10 (J)
+x = x + z
+x = x % 26
+z = z /26
+  z = Z8 | Z6
+
+x = x - 6
+x = x != J
+ x = 0 if J = I -2
+
+y = 25 * x
+y = y + 1
+   y = 26 | 1
+
+z = z * y
+  z = 26Z8 | Z6
+
+y = J + 5
+y = y * x
+
+z = z + y
+
+Result,
+w = I
+y = J + 5
+z = 26Z8 + y | Z6
+
+Instructions for digit 11 (K)
+x = x + z
+x = x % 26
+z = z / 26
+  z = Z8 | Z5
+
+x = x - 10
+x = x != K
+ x = 0 if K = J - 5 | K = F + 2
+
+y = 25 * x
+y = y + 1
+   y = 26 | 1
+
+z = z * y
+  z = 26Z8 | Z5
+
+y = K + 12
+y = y * x
+
+z = z + y
+
+Result,
+w = K
+y = K + 12
+z = 26Z8 + y | Z5
+
+Instructions for digit 12 (L)
+x = x + z
+x = x % 26
+z = z / 26
+  z = Z8 | Z4
+
+x = x - 14
+x = x != L
+ x = 0 if L = K - 3 | L = E - 8
+
+y = 25 * x
+y = y + 1
+   y = 26 | 1
+
+z = z * y
+  z = 26Z8 | Z4
+
+y = L + 11
+y = y * x
+
+z = z + y
+
+Result,
+w = L
+y = L + 11
+z = 26Z8 + y | Z4
+
+Instructions for digit 13 (M)
+x = x + z
+x = x % 26
+z = z / 26
+  current Z = 26Z8 + L + 11 | Z4
+   for Z4 take the 2nd path alone (x = 0)
+  z = Z8 | Z1
+
+x = x - 9
+x = x != M
+ x = 0 if M = L + 2
+
+y = 25 * x
+y = y + 1
+   y = 26 | 1
+
+z = z * y
+  z = 26Z8 | Z1
+
+y = M + 13
+y = y * x
+
+z = z + y
+
+Result,
+w = M
+y = M + 13
+z = 26Z8 + y | Z1
+
+Instructions for digit 14 (N)
+x = x + z
+x = x % 26
+  x = M + 13 | A + 6
+z = z / 26
+  z = Z8 | 0
+
+x = x - 14
+x = x != N
+ x = 0 if N = A + 6
+
+y = 25 * x
+y = y + 1
+   y = 26 | 1
+
+z = z * y
+  z = 26Z8 | 0
+
+y = N + 7
+y = y * x
+  y = N + 7 | 0
+
+z = z + y
+
+Result,
+w = N
+y = N + 7
+z = 26Z8 + y | 0
