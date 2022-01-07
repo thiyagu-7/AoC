@@ -3,30 +3,53 @@ package com.thiyagu_7.adventofcode.year2021.day23;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class SolutionDay23 {
-    public int part1(Burrow burrow) {
-        char[] hallway = new char[11];
-        Arrays.fill(hallway, '.');
-        return 1;
+    private static final Map<Integer, Character> roomIndexToRoom;
+    private static final Map<Character, Integer> roomToRoomIndex;
+    private static final Map<Character, Integer> roomCosts;
+
+    static {
+        roomIndexToRoom = Map.of(
+                0, 'A',
+                1, 'B',
+                2, 'C',
+                3, 'D');
+        roomToRoomIndex = roomIndexToRoom.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+        roomCosts = Map.of(
+                'A', 1,
+                'B', 10,
+                'C', 100,
+                'D', 1000);
     }
 
-    public static int res = Integer.MAX_VALUE;
+    public int part1(Burrow burrow) {
+        Result result = new Result();
+        computePossibleMovements(burrow, result, 0);
+        return result.res;
+    }
 
-    public void getPossibleMovements(Burrow burrow, int cost) {
+    private static class Result {
+        int res = Integer.MAX_VALUE;
+    }
+
+    private void computePossibleMovements(Burrow burrow, Result result, int cost) {
         if (isEnd(burrow)) {
-            res = Math.min(res, cost);
+            result.res = Math.min(result.res, cost);
             return;
         }
-        if (cost > res) {
+        if (cost > result.res) {
             return;
         }
-        char[][] rooms = burrow.rooms;
-        char[] hallway = burrow.hallway;
+        char[][] rooms = burrow.getRooms();
+        char[] hallway = burrow.getHallway();
         for (int i = 0; i < hallway.length; i++) {
             if (hallway[i] != '.') {
                 Map<Burrow, Integer> hallwayMovements = getPossibleMovementsForHallway(burrow, i);
-                hallwayMovements.forEach((k, v) -> getPossibleMovements(k, cost + v));
+                hallwayMovements.forEach((k, v) -> computePossibleMovements(k, result, cost + v));
             }
         }
         for (int j = 0; j < 4; j++) {
@@ -37,7 +60,7 @@ public class SolutionDay23 {
                     continue;
                 }
                 Map<Burrow, Integer> hallwayMovements = getPossibleMovements(burrow, 0, j);
-                hallwayMovements.forEach((k, v) -> getPossibleMovements(k, cost + v));
+                hallwayMovements.forEach((k, v) -> computePossibleMovements(k, result, cost + v));
             }
         }
         for (int j = 0; j < 4; j++) {
@@ -47,20 +70,15 @@ public class SolutionDay23 {
                     continue;
                 }
                 Map<Burrow, Integer> hallwayMovements = getPossibleMovements(burrow, 1, j);
-                hallwayMovements.forEach((k, v) -> getPossibleMovements(k, cost + v));
+                hallwayMovements.forEach((k, v) -> computePossibleMovements(k, result, cost + v));
             }
         }
     }
 
-    private String stringValue(Burrow burrow) {
-        return new String(burrow.hallway) + Arrays.toString(burrow.rooms[0])
-                +Arrays.toString(burrow.rooms[1]);
-    }
-
-    public Map<Burrow, Integer> getPossibleMovementsForHallway(Burrow burrow, int hallwayIdx) {
+    private Map<Burrow, Integer> getPossibleMovementsForHallway(Burrow burrow, int hallwayIdx) {
         Map<Burrow, Integer> burrows = new HashMap<>();
-        char[][] rooms = burrow.rooms;
-        char[] hallway = burrow.hallway;
+        char[][] rooms = burrow.getRooms();
+        char[] hallway = burrow.getHallway();
         char c = hallway[hallwayIdx];
         int destRoomIdx = getDestinationRoomIndex(c);
         int destHallwayIdx = (destRoomIdx + 1) * 2;
@@ -120,21 +138,20 @@ public class SolutionDay23 {
                 }
             }
         }
-
         return burrows;
     }
 
-    public Map<Burrow, Integer> getPossibleMovements(Burrow burrow, int x, int y) {
+    private Map<Burrow, Integer> getPossibleMovements(Burrow burrow, int x, int y) {
         Map<Burrow, Integer> burrows = new HashMap<>();
-        char[][] rooms = burrow.rooms;
-        char[] hallway = burrow.hallway;
-        char c = burrow.rooms[x][y];
+        char[][] rooms = burrow.getRooms();
+        char[] hallway = burrow.getHallway();
+        char c = burrow.getRooms()[x][y];
 
         int hallwayIdx = (y + 1) * 2;
         int cost;
         int initCost = 0;
         if (x == 1) {
-            if (burrow.rooms[0][y] != '.') {
+            if (burrow.getRooms()[0][y] != '.') {
                 return burrows;
             } else {
                 initCost = getCost(c); // one move up to first row
@@ -180,9 +197,9 @@ public class SolutionDay23 {
                             cost += 3 * getCost(c);
                         }
 
-                        burrows = new HashMap<>(); //
+                        burrows = new HashMap<>();
                         burrows.put(newBurrow, cost);
-                        return burrows; //
+                        return burrows;
                     }
                 }
             }
@@ -228,7 +245,7 @@ public class SolutionDay23 {
                             newBurrow = new Burrow(hallway, newRooms);
                             cost += 3 * getCost(c);
                         }
-                        burrows = new HashMap<>(); //
+                        burrows = new HashMap<>();
                         burrows.put(newBurrow, cost);
                         return burrows; // if we can get to dest, ignore the other computed steps so far in getting to hallway
                     }
@@ -240,36 +257,15 @@ public class SolutionDay23 {
     }
 
     private char getDestination(int roomIdx) {
-        if (roomIdx == 0) {
-            return 'A';
-        } else if (roomIdx == 1) {
-            return 'B';
-        } else if (roomIdx == 2) {
-            return 'C';
-        }
-        return 'D';
+        return roomIndexToRoom.get(roomIdx);
     }
 
-    private int getDestinationRoomIndex(char c) {
-        if (c == 'A') {
-            return 0;
-        } else if (c == 'B') {
-            return 1;
-        } else if (c == 'C') {
-            return 2;
-        }
-        return 3;
+    private int getDestinationRoomIndex(char room) {
+        return roomToRoomIndex.get(room);
     }
 
-    public int getCost(char c) {
-        if (c == 'A') {
-            return 1;
-        } else if (c == 'B') {
-            return 10;
-        } else if (c == 'C') {
-            return 100;
-        }
-        return 1000;
+    private int getCost(char room) {
+        return roomCosts.get(room);
     }
 
     private char[] copy(char[] c) {
@@ -285,68 +281,10 @@ public class SolutionDay23 {
     }
 
     private boolean isEnd(Burrow burrow) {
-
-        char[][] rooms = burrow.rooms;
+        char[][] rooms = burrow.getRooms();
         return rooms[0][0] == 'A' && rooms[1][0] == 'A'
                 && rooms[0][1] == 'B' && rooms[1][1] == 'B'
                 && rooms[0][2] == 'C' && rooms[1][2] == 'C'
                 && rooms[0][3] == 'D' && rooms[1][3] == 'D';
-    }
-
-    public static class Burrow {
-        private final char[] hallway;
-        private final char[][] rooms;
-
-        public Burrow(char[] hallway, char[][] rooms) {
-            this.hallway = hallway;
-            this.rooms = rooms;
-        }
-
-        public Burrow(char[][] rooms) {
-            hallway = new char[11];
-            Arrays.fill(hallway, '.');
-            this.rooms = rooms;
-        }
-
-    }
-
-    public static void main(String[] args) {
-        SolutionDay23 s = new SolutionDay23();
-        char[] hallway = new char[]{'.', '.', '.', '.', '.', 'D', '.', '.', '.', '.', '.'};
-        char[][] rooms = new char[][]{{'B', '.', 'C', 'D'}, {'A', 'B', 'C', 'A'}};
-        Burrow burrow = new Burrow(hallway, rooms);
-        Map<Burrow, Integer> cc;
-
-        hallway = new char[]{'.', '.', '.', '.', '.', 'D', '.', 'D', '.', 'A', '.'};
-        rooms = new char[][]{{'.', 'B', 'C', '.'}, {'A', 'B', 'C', '.'}};
-        burrow = new Burrow(hallway, rooms);
-
-        cc = s.getPossibleMovements(burrow, 0, 1);
-        System.out.println();
-
-        cc = s.getPossibleMovementsForHallway(burrow, 7);
-        System.out.println();
-
-
-        hallway = new char[]{'.', '.', '.', '.', '.', '.', '.', '.', '.', 'A', '.'};
-        rooms = new char[][]{{'.', 'B', 'C', 'D'}, {'A', 'B', 'C', 'D'}};
-        burrow = new Burrow(hallway, rooms);
-
-       cc = s.getPossibleMovementsForHallway(burrow, 9);
-        System.out.println();
-        hallway = new char[]{'.', '.', '.', '.', '.', 'D', '.', '.', '.', '.', '.'};
-        rooms = new char[][]{{'.', 'B', 'C', 'D'}, {'A', 'B', 'C', 'A'}};
-        burrow = new Burrow(hallway, rooms);
-
-        cc = s.getPossibleMovements(burrow, 0, 3);
-        System.out.println();
-
-        hallway = new char[]{'.', '.', '.', '.', 'C', '.', '.', '.', '.', '.', '.'};
-        rooms = new char[][]{{'.', '.', '.', 'D'},
-                             {'A', 'B', 'B', 'A'}};
-        burrow = new Burrow(hallway, rooms);
-
-        cc = s.getPossibleMovementsForHallway(burrow, 4);
-        System.out.println();
     }
 }

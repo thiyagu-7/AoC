@@ -3,24 +3,53 @@ package com.thiyagu_7.adventofcode.year2021.day23;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class Part2 {
-    public static int res = Integer.MAX_VALUE;
+public class SolutionDay23Part2 {
+    private static final Map<Integer, Character> roomIndexToRoom;
+    private static final Map<Character, Integer> roomToRoomIndex;
+    private static final Map<Character, Integer> roomCosts;
 
-    public void getPossibleMovements(Burrow burrow, int cost) {
+    static {
+        roomIndexToRoom = Map.of(
+                0, 'A',
+                1, 'B',
+                2, 'C',
+                3, 'D');
+        roomToRoomIndex = roomIndexToRoom.entrySet()
+                .stream()
+                .collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
+        roomCosts = Map.of(
+                'A', 1,
+                'B', 10,
+                'C', 100,
+                'D', 1000);
+    }
+
+    public int part2(Burrow burrow) {
+        Result result = new Result();
+        computePossibleMovements(burrow, result, 0);
+        return result.res;
+    }
+
+    private static class Result {
+        int res = Integer.MAX_VALUE;
+    }
+
+    private void computePossibleMovements(Burrow burrow, Result result, int cost) {
         if (isEnd(burrow)) {
-            res = Math.min(res, cost);
+            result.res = Math.min(result.res, cost);
             return;
         }
-        if (cost > res) {
+        if (cost > result.res) {
             return;
         }
-        char[][] rooms = burrow.rooms;
-        char[] hallway = burrow.hallway;
+        char[][] rooms = burrow.getRooms();
+        char[] hallway = burrow.getHallway();
         for (int i = 0; i < hallway.length; i++) {
             if (hallway[i] != '.') {
                 Map<Burrow, Integer> hallwayMovements = getPossibleMovementsForHallway(burrow, i);
-                hallwayMovements.forEach((k, v) -> getPossibleMovements(k, cost + v));
+                hallwayMovements.forEach((k, v) -> computePossibleMovements(k, result,cost + v));
             }
         }
 
@@ -33,7 +62,7 @@ public class Part2 {
                     continue;
                 }
                 Map<Burrow, Integer> hallwayMovements = getPossibleMovements(burrow, 0, j);
-                hallwayMovements.forEach((k, v) -> getPossibleMovements(k, cost + v));
+                hallwayMovements.forEach((k, v) -> computePossibleMovements(k, result, cost + v));
             }
         }
         // row 2
@@ -47,7 +76,7 @@ public class Part2 {
                 }
 
                 Map<Burrow, Integer> hallwayMovements = getPossibleMovements(burrow, 1, j);
-                hallwayMovements.forEach((k, v) -> getPossibleMovements(k, cost + v));
+                hallwayMovements.forEach((k, v) -> computePossibleMovements(k, result, cost + v));
             }
         }
         // row 3
@@ -60,7 +89,7 @@ public class Part2 {
                     continue;
                 }
                 Map<Burrow, Integer> hallwayMovements = getPossibleMovements(burrow, 2, j);
-                hallwayMovements.forEach((k, v) -> getPossibleMovements(k, cost + v));
+                hallwayMovements.forEach((k, v) -> computePossibleMovements(k, result, cost + v));
             }
         }
         // row 4
@@ -72,22 +101,15 @@ public class Part2 {
                     continue;
                 }
                 Map<Burrow, Integer> hallwayMovements = getPossibleMovements(burrow, 3, j);
-                hallwayMovements.forEach((k, v) -> getPossibleMovements(k, cost + v));
+                hallwayMovements.forEach((k, v) -> computePossibleMovements(k, result, cost + v));
             }
         }
     }
 
-    private String stringValue(Burrow burrow) {
-        return new String(burrow.hallway) + Arrays.toString(burrow.rooms[0])
-                + Arrays.toString(burrow.rooms[1])
-                + Arrays.toString(burrow.rooms[2])
-                + Arrays.toString(burrow.rooms[3]);
-    }
-
-    public Map<Burrow, Integer> getPossibleMovementsForHallway(Burrow burrow, int hallwayIdx) {
+    private Map<Burrow, Integer> getPossibleMovementsForHallway(Burrow burrow, int hallwayIdx) {
         Map<Burrow, Integer> burrows = new HashMap<>();
-        char[][] rooms = burrow.rooms;
-        char[] hallway = burrow.hallway;
+        char[][] rooms = burrow.getRooms();
+        char[] hallway = burrow.getHallway();
         char c = hallway[hallwayIdx];
         int destRoomIdx = getDestinationRoomIndex(c);
         int destHallwayIdx = (destRoomIdx + 1) * 2;
@@ -169,19 +191,19 @@ public class Part2 {
     }
 
     // x can be 0, 1, 2, or 3
-    public Map<Burrow, Integer> getPossibleMovements(Burrow burrow, int x, int y) {
+    private Map<Burrow, Integer> getPossibleMovements(Burrow burrow, int x, int y) {
         Map<Burrow, Integer> burrows = new HashMap<>();
-        char[][] rooms = burrow.rooms;
-        char[] hallway = burrow.hallway;
-        char c = burrow.rooms[x][y];
+        char[][] rooms = burrow.getRooms();
+        char[] hallway = burrow.getHallway();
+        char c = burrow.getRooms()[x][y];
 
         int hallwayIdx = (y + 1) * 2;
         int cost;
         int initCost = 0;
         // check all
         if (x >= 1) {
-            for (int i = x -1; i >= 0; i--) {
-                if (burrow.rooms[i][y] != '.') {
+            for (int i = x - 1; i >= 0; i--) {
+                if (burrow.getRooms()[i][y] != '.') {
                     return burrows;
                 }
             }
@@ -236,9 +258,9 @@ public class Part2 {
                             newBurrow = new Burrow(hallway, newRooms);
                             cost += 2 * getCost(c);
                         }
-                        burrows = new HashMap<>(); //
+                        burrows = new HashMap<>();
                         burrows.put(newBurrow, cost);
-                        return burrows; //
+                        return burrows;
                     }
                 }
             }
@@ -307,42 +329,15 @@ public class Part2 {
     }
 
     private char getDestination(int roomIdx) {
-        if (roomIdx == 0) {
-            return 'A';
-        } else if (roomIdx == 1) {
-            return 'B';
-        } else if (roomIdx == 2) {
-            return 'C';
-        }else if (roomIdx == 3) {
-            return 'D';
-        }
-       throw new RuntimeException();
+        return roomIndexToRoom.get(roomIdx);
     }
 
-    private int getDestinationRoomIndex(char c) {
-        if (c == 'A') {
-            return 0;
-        } else if (c == 'B') {
-            return 1;
-        } else if (c == 'C') {
-            return 2;
-        }  else if (c == 'D') {
-            return 3;
-        }
-        throw new RuntimeException();
+    private int getDestinationRoomIndex(char room) {
+        return roomToRoomIndex.get(room);
     }
 
-    public int getCost(char c) {
-        if (c == 'A') {
-            return 1;
-        } else if (c == 'B') {
-            return 10;
-        } else if (c == 'C') {
-            return 100;
-        } else if (c == 'D') {
-            return 1000;
-        }
-        throw new RuntimeException();
+    private int getCost(char room) {
+        return roomCosts.get(room);
     }
 
     private char[] copy(char[] c) {
@@ -358,27 +353,10 @@ public class Part2 {
     }
 
     private boolean isEnd(Burrow burrow) {
-        char[][] rooms = burrow.rooms;
+        char[][] rooms = burrow.getRooms();
         return rooms[0][0] == 'A' && rooms[1][0] == 'A' && rooms[2][0] == 'A' && rooms[3][0] == 'A'
                 && rooms[0][1] == 'B' && rooms[1][1] == 'B' && rooms[2][1] == 'B' && rooms[3][1] == 'B'
                 && rooms[0][2] == 'C' && rooms[1][2] == 'C' & rooms[2][2] == 'C' && rooms[3][2] == 'C'
                 && rooms[0][3] == 'D' && rooms[1][3] == 'D' && rooms[2][3] == 'D' && rooms[3][3] == 'D';
-    }
-
-    public static class Burrow {
-        private final char[] hallway;
-        private final char[][] rooms;
-
-        public Burrow(char[] hallway, char[][] rooms) {
-            this.hallway = hallway;
-            this.rooms = rooms;
-        }
-
-        public Burrow(char[][] rooms) {
-            hallway = new char[11];
-            Arrays.fill(hallway, '.');
-            this.rooms = rooms;
-        }
-
     }
 }
