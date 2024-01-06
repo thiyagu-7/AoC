@@ -1,5 +1,6 @@
 package com.thiyagu_7.adventofcode.year2023.day20;
 
+import com.thiyagu_7.adventofcode.util.LCMHelper;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -89,6 +90,51 @@ public class SolutionDay20 {
                             allModulesToDestination.get(conjunctionModule), inputModules));
         }
         return moduleMap;
+    }
+
+    public long part2(List<String> input) {
+        Map<String, Module> moduleMap = parseInput(input);
+        Queue<PulseOutput> processQueue = new LinkedList<>();
+        Module broadcaster = moduleMap.get("broadcaster");
+
+        int vqToHp = 0, snToHp = 0, rfToHp = 0, srToHp = 0;
+        int valsCollected = 0;
+        for (int i = 0; ; i++) {
+            PulseOutput pulseOutput = broadcaster.handlePulse("button", //sender name doesn't matter for broadcaster module
+                            Pulse.LOW)
+                    .get();
+            processQueue.add(pulseOutput);
+
+            while (!processQueue.isEmpty()) {
+                pulseOutput = processQueue.poll();
+
+                for (String destinationModuleName : pulseOutput.destinationModules) {
+                    Module destinationModule = moduleMap.get(destinationModuleName);
+
+                    if (destinationModuleName.equals("hp")
+                            && pulseOutput.pulse == Pulse.HIGH) {
+                        switch (pulseOutput.sender) {
+                            case "vq" -> vqToHp = i + 1;
+                            case "sn" -> snToHp = i + 1;
+                            case "rf" -> rfToHp = i + 1;
+                            case "sr" -> srToHp = i + 1;
+                        }
+                        valsCollected++;
+                    }
+                    if (valsCollected == 4) {
+                        return LCMHelper.findLCM(List.of(vqToHp, snToHp, rfToHp, srToHp));
+                    }
+                    if (destinationModule != null) {
+                        Optional<PulseOutput> maybePulseOutput = destinationModule.handlePulse(
+                                pulseOutput.sender,
+                                pulseOutput.pulse);
+                        maybePulseOutput.ifPresent(processQueue::add);
+
+                    }
+                }
+            }
+        }
+
     }
 
     interface Module {

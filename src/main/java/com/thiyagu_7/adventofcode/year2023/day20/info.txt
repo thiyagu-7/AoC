@@ -1,0 +1,16 @@
+Part 2:
+The only incoming edge to rx is hp.
+hp is a Conjunction module with four inputs to it - vq, sn, rf and sr. All four of these are Conjunction modules
+
+Hence for hp to send a low pulse to rx, all four inputs to it must send a high pulse to hp.
+
+Solution:
+Track when each of the four inputs sends high pulse to rx - we can see a pattern (constant interval).
+For example vq sends hp HighPulse when i = 3916, 7833, 11750, 15667 - Difference is 3917.
+Similar pattern for other 3 as well.
+
+Hence, find LCM of all 4 differences. It is when all four inputs will send a high pulse to hp.
+This will send a low pulse to rx.
+
+Graphviz svg from
+https://dreampuf.github.io/GraphvizOnline/

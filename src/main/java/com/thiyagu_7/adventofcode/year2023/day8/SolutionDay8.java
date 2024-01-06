@@ -1,5 +1,7 @@
 package com.thiyagu_7.adventofcode.year2023.day8;
 
+import com.thiyagu_7.adventofcode.util.LCMHelper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;

@@ -1,4 +1,4 @@
-package com.thiyagu_7.adventofcode.year2023.day8;
+package com.thiyagu_7.adventofcode.util;
 
 import java.util.List;
 
