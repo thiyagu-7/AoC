@@ -1,0 +1,7 @@
+Part 2 - Multiple solutions:
+ - Shoelace and Pick theorem (SolutionDay10#part2)
+ - SolutionDay10Part2FromTo - From...To and To...From approach
+ - SolutionDay10Part2_3x3Pipe - expanding 1x1 cell to 3x3
+
+Another interesting approach (didn't code)
+ https://www.reddit.com/r/adventofcode/comments/18gsw7f/2023_day_10_part_2_is_there_a_name_for_the/
