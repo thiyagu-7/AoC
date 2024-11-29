@@ -1,6 +1,9 @@
 package com.thiyagu_7.adventofcode.year2023.day24;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SolutionDay24 {
@@ -130,5 +133,177 @@ public class SolutionDay24 {
 
     record InputLine(Position position, Velocity velocity) {
 
+    }
+
+    public RockAndVelocity part2(List<String> input) {
+        List<InputLine> inputLines = parseInput(input);
+        Result result;
+
+        long[][] matrix = new long[4][4];
+        long[] cons = new long[4];
+
+        result = eq1(inputLines.get(0).position, inputLines.get(0).velocity, inputLines.get(1).position, inputLines.get(1).velocity);
+        fill(matrix, cons, 0, result);
+        result = eq1(inputLines.get(1).position, inputLines.get(1).velocity, inputLines.get(2).position, inputLines.get(2).velocity);
+        fill(matrix, cons, 1, result);
+        result = eq1(inputLines.get(2).position, inputLines.get(2).velocity, inputLines.get(3).position, inputLines.get(3).velocity);
+        fill(matrix, cons, 2, result);
+        result = eq1(inputLines.get(3).position, inputLines.get(3).velocity, inputLines.get(4).position, inputLines.get(4).velocity);
+        fill(matrix, cons, 3, result);
+
+        BigDecimal d = determinant(matrix);
+        long[][] copiedMatrix;
+        copiedMatrix = copy(matrix);
+        fillCons(copiedMatrix, cons, 0);
+        BigDecimal d1 = determinant(copiedMatrix);
+
+        copiedMatrix = copy(matrix);
+        fillCons(copiedMatrix, cons, 1);
+        BigDecimal d2 = determinant(copiedMatrix);
+
+        copiedMatrix = copy(matrix);
+        fillCons(copiedMatrix, cons, 2);
+        BigDecimal d3 = determinant(copiedMatrix);
+
+        copiedMatrix = copy(matrix);
+        fillCons(copiedMatrix, cons, 3);
+        BigDecimal d4 = determinant(copiedMatrix);
+
+        BigDecimal x = d1.divide(d, 3, RoundingMode.HALF_UP);
+        BigDecimal y = d2.divide(d, 3, RoundingMode.HALF_UP);
+        BigDecimal dx = d3.divide(d, 3, RoundingMode.HALF_UP);
+        BigDecimal dy = d4.divide(d, 3, RoundingMode.HALF_UP);
+        //System.out.println(x +" " + y + " " + dx + " " + dy);
+
+        result = eq2(inputLines.get(0).position, inputLines.get(0).velocity, inputLines.get(1).position, inputLines.get(1).velocity);
+        fill(matrix, cons, 0, result);
+        result = eq2(inputLines.get(1).position, inputLines.get(1).velocity, inputLines.get(2).position, inputLines.get(2).velocity);
+        fill(matrix, cons, 1, result);
+        result = eq2(inputLines.get(2).position, inputLines.get(2).velocity, inputLines.get(3).position, inputLines.get(3).velocity);
+        fill(matrix, cons, 2, result);
+        result = eq2(inputLines.get(3).position, inputLines.get(3).velocity, inputLines.get(4).position, inputLines.get(4).velocity);
+        fill(matrix, cons, 3, result);
+
+        d = determinant(matrix);
+        copiedMatrix = copy(matrix);
+        fillCons(copiedMatrix, cons, 0);
+        d1 = determinant(copiedMatrix);
+
+        copiedMatrix = copy(matrix);
+        fillCons(copiedMatrix, cons, 1);
+        d2 = determinant(copiedMatrix);
+
+        copiedMatrix = copy(matrix);
+        fillCons(copiedMatrix, cons, 2);
+        d3 = determinant(copiedMatrix);
+
+        copiedMatrix = copy(matrix);
+        fillCons(copiedMatrix, cons, 3);
+        d4 = determinant(copiedMatrix);
+
+        //x = d1.divide(d, 3, RoundingMode.HALF_UP); // should be same as previous x, but diff in decimal
+        BigDecimal z = d2.divide(d, 3, RoundingMode.HALF_UP);
+        dx = d3.divide(d, 3, RoundingMode.HALF_UP); // same as previous dx
+        BigDecimal dz = d4.divide(d, 3, RoundingMode.HALF_UP);
+
+        //System.out.println(x +" " + z + " " + dx + " " + dz);
+
+        //Part 2 answer is x.add(y).add(z)
+        return new RockAndVelocity(x, y, z, dx, dy, dz);
+    }
+
+    private void fillCons(long[][] matrix, long[] cons, int j) {
+        for (int i = 0; i < 4; i++) {
+            matrix[i][j] = cons[i];
+        }
+    }
+
+    private long[][] copy(long[][] matrix) {
+        long[][] copy = new long[4][4];
+        for (int i = 0; i < 4; i++) {
+            copy[i] = Arrays.copyOf(matrix[i], 4);
+        }
+        return copy;
+    }
+
+    private void fill(long[][] row, long[] cons, int i, Result result) {
+        row[i][0] = result.a;
+        row[i][1] = result.b;
+        row[i][2] = (long) result.c;
+        row[i][3] = (long) result.d;
+        cons[i] = (long) result.e;
+    }
+
+    private Result eq1(Position position1, Velocity velocity1,
+                              Position position2, Velocity velocity2) {
+        int x = velocity2.yVelocity - velocity1.yVelocity;
+        int y = velocity1.xVelocity - velocity2.xVelocity;
+        double dx = position1.y - position2.y;
+        double dy = position2.x - position1.x;
+
+        double cons = (position2.x * velocity2.yVelocity)
+                + (position1.y * velocity1.xVelocity)
+                - (position2.y * velocity2.xVelocity)
+                - (position1.x * velocity1.yVelocity);
+
+        return new Result(x, y, dx, dy, cons);
+    }
+
+    private Result eq2(Position position1, Velocity velocity1,
+                              Position position2, Velocity velocity2) {
+        int x = velocity2.zVelocity - velocity1.zVelocity;
+        int z = velocity1.xVelocity - velocity2.xVelocity;
+        double dx = position1.z - position2.z;
+        double dz = position2.x - position1.x;
+
+        double cons = (position2.x * velocity2.zVelocity)
+                + (position1.z * velocity1.xVelocity)
+                - (position2.z * velocity2.xVelocity)
+                - (position1.x * velocity1.zVelocity);
+
+        return new Result(x, z, dx, dz, cons);
+
+    }
+
+    record Result(int a, int b, double c, double d, double e) {
+
+    }
+
+    private BigDecimal determinant(long[][] matrix) {
+        if (matrix.length == 2) {
+            BigDecimal a = BigDecimal.valueOf(matrix[0][0]).multiply(BigDecimal.valueOf(matrix[1][1]));
+            BigDecimal b = BigDecimal.valueOf(matrix[1][0]).multiply(BigDecimal.valueOf(matrix[0][1]));
+            return a.subtract(b);
+        }
+        int n = matrix.length;
+        boolean neg = false;
+        BigDecimal res = BigDecimal.ZERO;
+        for (int j = 0; j < n; j++) {
+            long[][] subMatrix = subMatrix(matrix, 0, j);
+            res = res.add(BigDecimal.valueOf(matrix[0][j]).multiply(determinant(subMatrix))
+                    .multiply((neg ? BigDecimal.valueOf(-1) : BigDecimal.ONE)));
+            neg = !neg;
+        }
+        return res;
+    }
+
+    private long[][] subMatrix(long[][] matrix, int x, int y) {
+        int n = matrix.length;
+        long[][] subMatrix = new long[n - 1][n - 1];
+        int ii = 0;
+        for (int i = 0; i < n; i++) {
+            if (i == x) {
+                continue;
+            }
+            int jj = 0;
+            for (int j = 0; j < n; j++) {
+                if (j == y) {
+                    continue;
+                }
+                subMatrix[ii][jj++] = matrix[i][j];
+            }
+            ii++;
+        }
+        return subMatrix;
     }
 }

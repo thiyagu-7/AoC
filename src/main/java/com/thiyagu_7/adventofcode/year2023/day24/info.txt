@@ -1,0 +1,10 @@
+Part 2:
+Algebraic solution to arrive at the equation
+Approach same as in https://www.reddit.com/r/adventofcode/comments/18q40he/2023_day_24_part_2_a_straightforward_nonsolver/
+
+(dyB - dyA)X + (dxA - dxB)Y + (yA - yB)DX + (xB - xA)DY = xBdyB + yAdxA - yBdxB - xAdyA
+
+(dzB - dzA)X + (dxA - dxB)Z + (zA - zB)DX + (xB - xA)DZ = xBdzB + zAdxA - zBdxB - xAdzA
+
+Then solve Simultaneous Linear Equations for Four Variables - (X, Y, DX, DY) and then (X, Z, DX, DZ)
+Using the matrix determinant approach is Cramer's rule
