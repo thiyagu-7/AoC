@@ -95,7 +95,7 @@ public class SolutionDay17 {
         ParsedInput parsedInput = parseInput(input);
         List<Integer> program = parsedInput.program;
 
-        return recur(program, 1, program.size() - 1);
+        return recur(program, 0, program.size() - 1);
     }
 
     private long recur(List<Integer> program, long a, int idx) {
